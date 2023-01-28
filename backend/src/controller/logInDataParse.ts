@@ -5,33 +5,22 @@ import axios from 'axios';
 
 // HTTP POST FUNCTION для получения необходимых 'cookie'
 export async function postHttp (url, body) {
-  return new Promise(function (resolve, reject) {
-    axios.post(url, body)
-      .then(function (response) {
-        const cookieForLogIn = response.headers['set-cookie'];
+  const postToSchoolSiteForCookie = await axios.post(url, body);
+  const cookieForLogIn = postToSchoolSiteForCookie.headers['set-cookie']; // забираем cookie из http заголовка
 
-        resolve(cookieForLogIn);
-      })
-      .catch(function (error) { // если получили ошибку
-        console.log(error);
-      });
-  });
+  return cookieForLogIn;
 };
 
 // HTTP GET FUNCTION
 export async function parseSchoolWeekPage (url, cookieForLogIn) {
-  return new Promise(function (resolve, reject) {
-    axios.get(url, { // получение html странички
-      headers: {
-        Cookie: cookieForLogIn
-      }
-    }).then(function (response) {
-      const processedPage = cheerio.load(response.data); // передаём обработанную старничку в одну переменную 'processedPage'
-      resolve(processedPage);
-    }).catch(function(error){
-      console.log(error)
-    })
+  const getHTMLPage = await axios.get(url, { // получение html странички
+    headers: {
+      Cookie: cookieForLogIn
+    }
   });
+  const processedPage = cheerio.load(getHTMLPage.data);// передаём обработанную старничку в одну переменную 'processedPage'
+
+  return processedPage;
 };
 
 export function formLessonsInfo (processedPage, optionsToGetElement) {
