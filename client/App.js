@@ -1,58 +1,32 @@
-import axios from "axios";
 import { StatusBar } from "expo-status-bar";
-import Cookies from "js-cookie";
 import React, { useState } from "react";
-import { Text, View, TextInput, TouchableOpacity } from "react-native";
-import appStyles from "./styles/appStyles";
+import { View, FlatList } from "react-native";
+import HomePage from "./pages/HomePage";
+import Schedual from "./pages/Schedual";
 
 export default function App() {
+  const [items, setItems] = React.useState();
+  const [getten, setStatus] = React.useState(false);
 
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
-
-  const logInAndGetSchedual = async () => {
-    await axios.post('http://localhost:8001/userLogIn', { login, password })
-      .then(function (response) {
-        // Создание cookie для логина и пароля, создание localStorage записи для расписания
-        Cookies.set("login", login);
-        Cookies.set("password", password);
-        localStorage.setItem('Schedual', JSON.stringify(response.data));
-        let a = JSON.parse(localStorage.getItem('Schedual'))
-        console.log(a['Понедельник'])
-
-      })
-      .catch(function (error) { // если получили ошибку
-        console.log(error);
-      });
-  };
+  React.useEffect(() => {
+    if (getten === false) {
+      const schedualFromLocaStorage = JSON.parse(localStorage.getItem('Schedual'))
+      setItems(schedualFromLocaStorage);
+      setStatus(true);
+      console.log(schedualFromLocaStorage['Понедельник'][0])
+    }
+  });
 
   return (
-    <View style={appStyles.container}>
-      <StatusBar style="auto" />
+    <View>
+      <FlatList data={items} renderItem={({ item }) => <Schedual
+        lessonNumber={item['Понедельник'][0].lessonNumber}
+        lessonName={item['Понедельник'][0].lessonName}
+        lessonTime={item['Понедельник'][0].lessonTime} />} />
 
-      <View style={appStyles.inputView}>
-        <TextInput
-          style={appStyles.TextInput}
-          placeholder="Логин "
-          placeholderTextColor="#003f5c"
-          onChangeText={(login) => setLogin(login)}
-        />
-      </View>
-
-      <View style={appStyles.inputView}>
-        <TextInput
-          style={appStyles.TextInput}
-          placeholder="Пароль"
-          placeholderTextColor="#003f5c"
-          secureTextEntry={true}
-          onChangeText={(password) => setPassword(password)}
-        />
-      </View>
-
-      <TouchableOpacity style={appStyles.loginBtn} onPress={logInAndGetSchedual}>
-        <Text style={appStyles.loginText}>LOGIN</Text>
-      </TouchableOpacity>
-
+      <StatusBar theme="auto" />
     </View>
   );
 }
+/*<Schedual lessonNumber=".1" lessonName="Русский язык" lessonTime="8:00-8:40" />
+<FlatList data={items} renderItem={({ item }) => <Schedual lessonNumber={item['Понедельник']['1'].lessonNumber} />} />*/

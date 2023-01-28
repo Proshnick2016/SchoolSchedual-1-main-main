@@ -1,8 +1,6 @@
 import cheerio from 'cheerio';
 import axios from 'axios';
 
-// axios.defaults.withCredentials = true;
-
 // HTTP POST FUNCTION для получения необходимых 'cookie'
 export async function postHttp (url, body) {
   const postToSchoolSiteForCookie = await axios.post(url, body);
@@ -26,7 +24,7 @@ export async function parseSchoolWeekPage (url, cookieForLogIn) {
 export function formLessonsInfo (processedPage, optionsToGetElement) {
   const allLessons = []; // массив для уроков
 
-  const allLessonsInfoWithWeekDays = { Понедельник: {}, Вторник: {}, Среда: {}, Четверг: {}, Пятница: {}, Суббота: {} }; // массив для распределения уроков по дням
+  const allLessonsInfoWithWeekDays = { Понедельник: [], Вторник: [], Среда: [], Четверг: [], Пятница: [], Суббота: [] }; // массив для распределения уроков по дням
   let dayIndexNum = 0; // Индекс дня в объекте
 
   const lessonNumber = getArrayByOptionElement(processedPage, optionsToGetElement.optionLessonNumber); // получаем массив данных для числа
@@ -41,7 +39,7 @@ export function formLessonsInfo (processedPage, optionsToGetElement) {
   }
 
   for (let i = 0; i < allLessons.length - 1; i++) { // распределение уроков по дням
-    allLessonsInfoWithWeekDays[Object.keys(allLessonsInfoWithWeekDays)[dayIndexNum]][Number(allLessons[i].lessonNumber)] = allLessons[i];
+    allLessonsInfoWithWeekDays[Object.keys(allLessonsInfoWithWeekDays)[dayIndexNum]][i] = allLessons[i];
     // (нахождение названия ключа по индексу, ссылаемся на несуществующий ключ объекта, чтобы его создать и добавляем туда урок) добавление урока в определенный день в объекте
 
     if (Number(allLessons[i].lessonNumber) >= Number(allLessons[i + 1].lessonNumber)) { // если следующий урок меньше/равень настоящему, то значит он будет на следующий день, поэтому увеличиваем индекс дня на 1
